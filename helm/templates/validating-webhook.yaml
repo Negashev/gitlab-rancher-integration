@@ -1,0 +1,23 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validating-namespaces
+  namespace: {{ .Release.Namespace }}
+webhooks:
+  - name: gitlab-rancher-integration
+    failurePolicy: Fail
+    clientConfig:
+      service:
+        name: {{ include "gri.fullname" . }}
+        namespace: {{ .Release.Namespace }}
+        path: /validate/namespaces
+      caBundle: {{ .Values.caBundle }} # a base64 encoded self signed ca cert is needed because all Admission Webhooks need to be on SSL
+    rules:
+      - apiGroups:
+          - "*"
+        apiVersions:
+          - "*"
+        resources:
+          - "namespaces"
+        operations:
+          - CREATE
