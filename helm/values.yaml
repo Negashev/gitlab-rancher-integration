@@ -7,7 +7,7 @@ caBundle: ""
 caCertsSecret: "gitlab-rancher-integration-webhook-certs"
 
 image:
-  repository: nginx
+  repository: negash/gitlab-rancher-integration
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
