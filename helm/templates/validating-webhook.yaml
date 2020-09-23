@@ -4,7 +4,7 @@ metadata:
   name: validating-namespaces
   namespace: {{ .Release.Namespace }}
 webhooks:
-  - name: gitlab-rancher-integration
+  - name: validating.namespaces.gitlab
     failurePolicy: Fail
     clientConfig:
       service:
