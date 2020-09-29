@@ -37,7 +37,7 @@ def stop_workload(id, workload, workload_type, namespace):
                     deleted_objects = Workload.__table__.delete().where(Workload.id==id)
                     db.session.execute(deleted_objects)
                     db.session.commit()
-    elif workload_type == 'ReplicaSet':
+    elif workload_type == 'StatefulSet':
         resp = apps_v1.list_namespaced_stateful_set(namespace=namespace)
         for i in resp.items:
             if i.metadata.name == workload:
