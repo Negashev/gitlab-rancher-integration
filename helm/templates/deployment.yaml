@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "gri.fullname" . }}
+  name: {{ include "gri.fullname" . }}-server
   labels:
     {{- include "gri.labels" . | nindent 4 }}
 spec:
@@ -34,21 +34,30 @@ spec:
           volumeMounts:
           - name: webhook-certs
             mountPath: /etc/webhook/certs
+          env:
+            {{- range $key, $value := $.Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           readinessProbe:
             failureThreshold: 3
             initialDelaySeconds: 10
             periodSeconds: 2
             successThreshold: 2
-            tcpSocket:
+            httpGet:
+              path: /healthz
               port: 443
+              scheme: HTTPS
             timeoutSeconds: 2
           livenessProbe:
             failureThreshold: 3
             initialDelaySeconds: 10
             periodSeconds: 2
             successThreshold: 1
-            tcpSocket:
+            httpGet:
+              path: /healthz
               port: 443
+              scheme: HTTPS
             timeoutSeconds: 2
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

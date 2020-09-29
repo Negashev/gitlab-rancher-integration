@@ -6,7 +6,8 @@ This helm repo integrate gitlab group/users (AutoDevOps) with rancher projects/u
 
 ### installation
 
-1. generate server.key,server.crt (for secret gitlab-rancher-integration-webhook-certs) and caBundle (for .Values.caBundle)
+1. install postgresql (for store workloads for kill) and redis (for kill workloads in background)
+2. generate server.key,server.crt (for secret gitlab-rancher-integration-webhook-certs) and caBundle (for .Values.caBundle)
 
     - clone repo
     - run alpine with mount repo `docker run -ti --rm -v ./gitlab-rancher-integration:/data -w /data alpine`

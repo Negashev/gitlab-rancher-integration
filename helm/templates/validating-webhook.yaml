@@ -6,6 +6,7 @@ metadata:
 webhooks:
   - name: autostop.gitlab.workloads
     sideEffects: Some
+    failurePolicy: Ignore
     clientConfig:
       service:
         name: {{ include "gri.fullname" . }}

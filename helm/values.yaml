@@ -6,6 +6,23 @@ replicaCount: 1
 caBundle: ""
 caCertsSecret: "gitlab-rancher-integration-webhook-certs"
 
+env:
+  SQLALCHEMY_DATABASE_URI: postgresql://postgres:password@database/gri
+  DRAMATIQ_BROKER: redis://queue:6379
+
+dramatiq:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 50m
+      memory: 150Mi
+    requests:
+      cpu: 50m
+      memory: 150Mi
+
+cron:
+  scale_workload: "*/5 * * * *"
+
 image:
   repository: negash/gitlab-rancher-integration
   pullPolicy: IfNotPresent

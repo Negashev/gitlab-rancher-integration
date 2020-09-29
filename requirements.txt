@@ -1,4 +1,8 @@
 pyyaml
 flask
 flask-sqlalchemy
+psycopg2
+PyMySQL
+gunicorn
 dramatiq[all]
+kubernetes
