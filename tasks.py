@@ -33,10 +33,6 @@ def stop_workload(id, workload, workload_type, namespace):
                     name=workload,
                     namespace=namespace,
                     body=i)
-                with app.app_context():
-                    deleted_objects = Workload.__table__.delete().where(Workload.id==id)
-                    db.session.execute(deleted_objects)
-                    db.session.commit()
     elif workload_type == 'StatefulSet':
         resp = apps_v1.list_namespaced_stateful_set(namespace=namespace)
         for i in resp.items:
@@ -46,7 +42,7 @@ def stop_workload(id, workload, workload_type, namespace):
                     name=workload,
                     namespace=namespace,
                     body=i)
-                with app.app_context():
-                    deleted_objects = Workload.__table__.delete().where(Workload.id==id)
-                    db.session.execute(deleted_objects)
-                    db.session.commit()
+    with app.app_context():
+        deleted_objects = Workload.__table__.delete().where(Workload.id==id)
+        db.session.execute(deleted_objects)
+        db.session.commit()
