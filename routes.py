@@ -3,7 +3,7 @@ import yaml
 from flask import current_app as app, request, jsonify
 from models import db, Workload
 
-IGNORE_NAMESPACE = os.getenv("IGNORE_NAMESPACE", "default,gitlab-managed-apps,gri,cattle-prometheus,cattle-system,ingress-nginx,kube-node-lease,kube-public,kube-system,security-scan").split(",")
+IGNORE_NAMESPACE = os.getenv("IGNORE_NAMESPACE", "default,gitlab-managed-apps,gri,cattle-prometheus,cattle-system,ingress-nginx,kube-node-lease,kube-public,kube-system,security-scan,istio-system").split(",")
 
 @app.route('/healthz', methods=['GET'])
 def healthz():
