@@ -11,7 +11,8 @@ RUN apk add --no-cache py3-gevent libpq mariadb-connector-c-dev && \
 
 ENV SQLALCHEMY_DATABASE_URI=postgresql://postgres:password@database/gri \
     SQLALCHEMY_ECHO=0 \ 
-    DRAMATIQ_BROKER=redis://queue:6379
+    DRAMATIQ_BROKER=redis://queue:6379 \
+    HOURS_KEEP_DEPLOYMENTS=1
 
 CMD gunicorn \
   --bind 0.0.0.0:443 \
