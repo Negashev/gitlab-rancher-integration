@@ -6,3 +6,4 @@ PyMySQL
 gunicorn
 dramatiq[all]
 kubernetes
+jsonpatch

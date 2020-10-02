@@ -6,9 +6,9 @@ from flask import current_app as app, request, jsonify
 from models import db, Workload
 
 IGNORE_NAMESPACE = os.getenv("IGNORE_NAMESPACE", "default,gitlab-managed-apps,gri,cattle-prometheus,cattle-system,ingress-nginx,kube-node-lease,kube-public,kube-system,security-scan,istio-system,knative-serving,knative-eventing,longhorn-system").split(",")
-ADD_IGNORE_NAMESPACE = os.getenv("ADD_IGNORE_NAMESPACE", "")
+ADD_IGNORE_NAMESPACE = os.getenv("ADD_IGNORE_NAMESPACE", "").split(",")
 
-IGNORE_NAMESPACE = IGNORE_NAMESPACE + ',' + ADD_IGNORE_NAMESPACE
+IGNORE_NAMESPACE = IGNORE_NAMESPACE + ADD_IGNORE_NAMESPACE
 
 @app.route('/healthz', methods=['GET'])
 def healthz():
