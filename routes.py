@@ -53,11 +53,11 @@ def deployment_webhook_mutate():
     if request_info['request']["namespace"] in IGNORE_NAMESPACE:
         return admission_response(True, "Workload in ignore namespaces")
     print(request_info['request']["namespace"])
-    if 'containers' in request_info['request']["spec"]['template']['spec']:
-        for container in request_info['request']["spec"]['template']['spec']['containers']:
+    if 'containers' in request_info['request']["object"]["spec"]['template']['spec']:
+        for container in request_info['request']["object"]["spec"]['template']['spec']['containers']:
             print(container['name'])
-    if 'initContainers' in request_info['request']["spec"]['template']['spec']:
-        for container in request_info['request']["spec"]['template']['spec']['initContainers']:
+    if 'initContainers' in request_info['request']["object"]["spec"]['template']['spec']:
+        for container in request_info['request']["object"]["spec"]['template']['spec']['initContainers']:
             print(container['name'])
     return admission_response_patch(True, "Adding allow label", json_patch = jsonpatch.JsonPatch([{"op": "add", "path": "/metadata/labels/allow", "value": "yes"}]))
 

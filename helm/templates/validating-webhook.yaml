@@ -3,6 +3,8 @@ kind: ValidatingWebhookConfiguration
 metadata:
   name: autostop-gitlab-workloads
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "gri.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": "post-install,post-upgrade,pre-delete"
 webhooks:
