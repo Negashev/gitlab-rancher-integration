@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "gri.labels" . | nindent 4 }}
   annotations:
-    "helm.sh/hook": "post-install,post-upgrade,pre-delete"
+    "helm.sh/hook": "post-install,post-upgrade"
 webhooks:
   - name: autostop.gitlab.workloads
     sideEffects: Some

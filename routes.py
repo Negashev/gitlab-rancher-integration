@@ -52,7 +52,7 @@ def deployment_webhook_mutate():
     request_info = request.get_json()
     if request_info['request']["namespace"] in IGNORE_NAMESPACE:
         return admission_response(True, "Workload in ignore namespaces")
-    print(request_info['request']["namespace"])
+    print(yaml.dump(request_info, allow_unicode=True, default_flow_style=False))
     if 'containers' in request_info['request']["object"]["spec"]['template']['spec']:
         for container in request_info['request']["object"]["spec"]['template']['spec']['containers']:
             print(container['name'])
