@@ -1,12 +1,16 @@
 import os
 import yaml
 import base64
+import copy
 import jsonpatch
 from flask import current_app as app, request, jsonify
 from models import db, Workload
 
 IGNORE_NAMESPACE = os.getenv("IGNORE_NAMESPACE", "default,gitlab-managed-apps,gri,cattle-prometheus,cattle-system,ingress-nginx,kube-node-lease,kube-public,kube-system,security-scan,istio-system,knative-serving,knative-eventing,longhorn-system").split(",")
 ADD_IGNORE_NAMESPACE = os.getenv("ADD_IGNORE_NAMESPACE", "").split(",")
+
+DEFAULT_CPU = os.getenv("DEFAULT_CPU", "50m")
+DEFAULT_MEMORY = os.getenv("DEFAULT_MEMORY", "128Mi")
 
 IGNORE_NAMESPACE = IGNORE_NAMESPACE + ADD_IGNORE_NAMESPACE
 
@@ -47,19 +51,55 @@ def admission_response(allowed, message):
     return jsonify({"response": {"allowed": allowed, "status": {"message": message}}})
 
 
+def resources_mutation(container):
+    mutate = False
+    try:
+        requests =  container['resources']['requests']
+    except KeyError:
+        mutate = True
+        container['resources']['requests'] = {}
+    try:
+        cpu =  container['resources']['requests']['cpu']
+    except KeyError:
+        mutate = True
+        container['resources']['requests']['cpu'] = DEFAULT_CPU
+    try:
+        memory =  container['resources']['requests']['memory']
+    except KeyError:
+        mutate = True
+        container['resources']['requests']['memory'] = DEFAULT_MEMORY
+    return container, mutate
+
+
 @app.route('/mutate/workloads', methods=['POST'])
 def deployment_webhook_mutate():
     request_info = request.get_json()
     if request_info['request']["namespace"] in IGNORE_NAMESPACE:
         return admission_response(True, "Workload in ignore namespaces")
-    print(yaml.dump(request_info, allow_unicode=True, default_flow_style=False))
-    if 'containers' in request_info['request']["object"]["spec"]['template']['spec']:
-        for container in request_info['request']["object"]["spec"]['template']['spec']['containers']:
-            print(container['name'])
-    if 'initContainers' in request_info['request']["object"]["spec"]['template']['spec']:
-        for container in request_info['request']["object"]["spec"]['template']['spec']['initContainers']:
-            print(container['name'])
-    return admission_response_patch(True, "Adding allow label", json_patch = jsonpatch.JsonPatch([{"op": "add", "path": "/metadata/labels/allow", "value": "yes"}]))
+
+    mutate = False
+
+    # apply resources mutation to containers
+    spec = request.json["request"]["object"]
+    modified_spec = copy.deepcopy(spec)
+    for i in range(len(modified_spec["spec"]['template']['spec']['containers'])):
+        container = modified_spec["spec"]['template']['spec']['containers'][i]
+        modified_spec["spec"]['template']['spec']['containers'][i], mutate = resources_mutation(container)
+
+    # apply resources mutation to initContainers which may not exist
+    try:
+        for i in range(len(modified_spec["spec"]['template']['spec']['initContainers'])):
+            container = modified_spec["spec"]['template']['spec']['initContainers'][i]
+
+            modified_spec["spec"]['template']['spec']['initContainers'][i], mutate = resources_mutation(container)
+    except KeyError:
+        pass
+
+    if mutate:
+        patch = jsonpatch.JsonPatch.from_diff(spec, modified_spec)
+        return admission_response_patch(True, "Adding resources for containers", json_patch = patch)
+    else:
+        return admission_response(True, "Workload is not mutate")
 
 
 
