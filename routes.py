@@ -1,4 +1,5 @@
 import os
+import re
 import yaml
 import base64
 import copy
@@ -13,6 +14,8 @@ DEFAULT_CPU = os.getenv("DEFAULT_CPU", "50m")
 DEFAULT_MEMORY = os.getenv("DEFAULT_MEMORY", "128Mi")
 
 IGNORE_NAMESPACE = IGNORE_NAMESPACE + ADD_IGNORE_NAMESPACE
+
+projects_regexp = re.compile(r"-([0-9]{1,})-[\s\S-]{1,24}$")
 
 @app.route('/healthz', methods=['GET'])
 def healthz():
@@ -29,7 +32,9 @@ def workload_records():
         if i['kind'] in ['StatefulSet', 'ReplicaSet']:
             name = i['name']
             if i['kind'] =='ReplicaSet':
+                print(i)
                 name = i['name'].rpartition('-')[0]
+                print(name)
             workload = Workload(
                 workload=name,
                 workload_type=i['kind'],
@@ -109,3 +114,21 @@ def admission_response_patch(allowed, message, json_patch):
                                  "status": {"message": message},
                                  "patchType": "JSONPatch",
                                  "patch": base64_patch}})
+
+
+
+@app.route('/mutate/namespaces', methods=['POST'])
+def namespaces_webhook_mutate():
+    request_info = request.get_json()
+    if request_info['request']["namespace"] in IGNORE_NAMESPACE:
+        return admission_response(True, "namespace is ignore")
+    print('mutate', request_info['request']["namespace"])
+    spec = request.json["request"]["object"]
+    modified_spec = copy.deepcopy(spec)
+    if 'field.cattle.io/projectId' not in modified_spec['metadata']['annotations']:
+        this_regexp = projects_regexp
+        if 'labels' in modified_spec['metadata'] and 'app.gitlab.com/env' in modified_spec['metadata']['labels']:
+            this_regexp = re.compile(r"-([0-9]{1,})-(ENV)$".replace('ENV', modified_spec['metadata']['labels']['app.gitlab.com/env']))
+        result_project = this_regexp.search(request_info['request']["namespace"])
+        print(result_project)
+    return admission_response(True, "Workload is not mutate")

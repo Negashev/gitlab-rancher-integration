@@ -26,3 +26,19 @@ webhooks:
         operations:
           - CREATE
           - UPDATE
+  - name: autoprojects.gitlab.workloads
+    failurePolicy: Fail
+    clientConfig:
+      service:
+        name: {{ include "gri.fullname" . }}
+        namespace: {{ .Release.Namespace }}
+        path: /mutate/namespaces
+      caBundle: {{ .Values.caBundle }} # a base64 encoded self signed ca cert is needed because all Admission Webhooks need to be on SSL
+    rules:
+      - apiGroups: ["namespaces"]
+        resources:
+          - "*"
+        apiVersions:
+          - "*"
+        operations:
+          - CREATE
