@@ -17,10 +17,11 @@ webhooks:
         path: /mutate/workloads
       caBundle: {{ .Values.caBundle }} # a base64 encoded self signed ca cert is needed because all Admission Webhooks need to be on SSL
     rules:
-      - apiGroups: ["apps"]
+      - apiGroups: ["apps", "batch"]
         resources:
           - "*"
         apiVersions:
           - "*"
         operations:
           - CREATE
+          - UPDATE
