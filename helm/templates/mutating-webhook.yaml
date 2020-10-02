@@ -5,6 +5,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     component: mutating-controller
+  annotations:
+    "helm.sh/hook": "post-install,post-upgrade,pre-delete"
 webhooks:
   - name: autoresources.gitlab.workloads
     failurePolicy: Fail
