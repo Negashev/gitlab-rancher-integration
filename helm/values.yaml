@@ -22,6 +22,13 @@ dramatiq:
 
 cron:
   scale_workload: "*/5 * * * *"
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
 
 image:
   repository: negash/gitlab-rancher-integration

@@ -28,7 +28,7 @@ spec:
             - python3
             - -u
             - cron.py
-            image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+            image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }}
             name: {{ .Chart.Name }}-cron
             resources:
@@ -47,6 +47,6 @@ spec:
           schedulerName: default-scheduler
           securityContext: {}
           terminationGracePeriodSeconds: 30
-  schedule: {{ .Values.cron.scale_workload }}
-  successfulJobsHistoryLimit: 10
+  schedule: "{{ .Values.cron.scale_workload }}"
+  successfulJobsHistoryLimit: 2
   suspend: false
