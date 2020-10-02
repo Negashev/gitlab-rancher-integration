@@ -3,10 +3,7 @@ kind: CronJob
 metadata:
   name: {{ include "gri.fullname" . }}-cron
   labels:
-    app.kubernetes.io/name: {{ include "gri.name" . }}
-    helm.sh/chart: {{ include "gri.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "gri.labels" . | nindent 4 }}
     app: cron
 spec:
   concurrencyPolicy: Allow

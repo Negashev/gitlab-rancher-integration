@@ -50,6 +50,8 @@ def admission_response(allowed, message):
 @app.route('/mutate/workloads', methods=['POST'])
 def deployment_webhook_mutate():
     request_info = request.get_json()
+    if request_info['request']["namespace"] in IGNORE_NAMESPACE:
+        return admission_response(True, "Workload in ignore namespaces")
     print(yaml.dump(request_info, allow_unicode=True, default_flow_style=False))
     return admission_response_patch(True, "Adding allow label", json_patch = jsonpatch.JsonPatch([{"op": "add", "path": "/metadata/labels/allow", "value": "yes"}]))
 
