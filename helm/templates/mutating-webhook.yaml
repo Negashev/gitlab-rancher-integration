@@ -35,10 +35,11 @@ webhooks:
         path: /mutate/namespaces
       caBundle: {{ .Values.caBundle }} # a base64 encoded self signed ca cert is needed because all Admission Webhooks need to be on SSL
     rules:
-      - apiGroups: ["namespaces"]
-        resources:
-          - "*"
+      - apiGroups:
+          - ""
         apiVersions:
           - "*"
+        resources:
+          - namespaces
         operations:
           - CREATE

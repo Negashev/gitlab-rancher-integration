@@ -32,9 +32,7 @@ def workload_records():
         if i['kind'] in ['StatefulSet', 'ReplicaSet']:
             name = i['name']
             if i['kind'] =='ReplicaSet':
-                print(i)
                 name = i['name'].rpartition('-')[0]
-                print(name)
             workload = Workload(
                 workload=name,
                 workload_type=i['kind'],
@@ -59,17 +57,17 @@ def admission_response(allowed, message):
 def resources_mutation(container):
     mutate = False
     try:
-        requests =  container['resources']['requests']
+        _ = container['resources']['requests']
     except KeyError:
         mutate = True
         container['resources']['requests'] = {}
     try:
-        cpu =  container['resources']['requests']['cpu']
+        _ = container['resources']['requests']['cpu']
     except KeyError:
         mutate = True
         container['resources']['requests']['cpu'] = DEFAULT_CPU
     try:
-        memory =  container['resources']['requests']['memory']
+        _ = container['resources']['requests']['memory']
     except KeyError:
         mutate = True
         container['resources']['requests']['memory'] = DEFAULT_MEMORY
@@ -95,7 +93,6 @@ def deployment_webhook_mutate():
     try:
         for i in range(len(modified_spec["spec"]['template']['spec']['initContainers'])):
             container = modified_spec["spec"]['template']['spec']['initContainers'][i]
-
             modified_spec["spec"]['template']['spec']['initContainers'][i], mutate = resources_mutation(container)
     except KeyError:
         pass
@@ -107,14 +104,12 @@ def deployment_webhook_mutate():
         return admission_response(True, "Workload is not mutate")
 
 
-
 def admission_response_patch(allowed, message, json_patch):
     base64_patch = base64.b64encode(json_patch.to_string().encode("utf-8")).decode("utf-8")
     return jsonify({"response": {"allowed": allowed,
                                  "status": {"message": message},
                                  "patchType": "JSONPatch",
                                  "patch": base64_patch}})
-
 
 
 @app.route('/mutate/namespaces', methods=['POST'])
