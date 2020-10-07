@@ -2,10 +2,13 @@ FROM python:alpine
 
 WORKDIR /src
 
+RUN apk add --no-cache py3-gevent
+RUN apk add --no-cache libpq
+RUN apk add --no-cache mariadb-connector-c-dev
+
 ADD requirements.txt requirements.txt
 
-RUN apk add --no-cache py3-gevent libpq mariadb-connector-c-dev && \
-    apk add --no-cache --virtual .build-deps build-base libffi-dev libmemcached-dev zlib-dev postgresql-dev mariadb-dev && \
+RUN apk add --no-cache --virtual .build-deps git build-base libffi-dev libmemcached-dev zlib-dev postgresql-dev mariadb-dev && \
     pip --no-cache install -r requirements.txt && \
     apk del .build-deps
 

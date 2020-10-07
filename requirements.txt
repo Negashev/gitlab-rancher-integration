@@ -7,3 +7,5 @@ gunicorn
 dramatiq[all]
 kubernetes
 jsonpatch
+python-gitlab
+git+https://github.com/rancher/client-python.git@master
