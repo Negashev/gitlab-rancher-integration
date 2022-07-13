@@ -15,6 +15,7 @@ import (
 ///////////////// MAIN
 func main() {
 	router := httprouter.New()
+	router.GET("/", home)
 	router.GET("/login/oauth/authorize", oauthAuthorize)
 	router.POST("/login/oauth/access_token", oauthAccessToken)
 	router.GET("/api/v3/user", apiV3User)
@@ -29,6 +30,10 @@ func main() {
 }
 
 ///////////////// API
+func home(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	fmt.Fprintf(w, "ok\n")
+}
+
 func oauthAuthorize(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	v := req.URL.Query()
 	v.Add("response_type", "code")
