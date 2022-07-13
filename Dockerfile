@@ -1,25 +1,28 @@
-FROM python:alpine
+FROM golang:alpine
 
-WORKDIR /src
+# Get the TLS CA certificates, they're not provided by busybox.
+RUN apk --no-cache add ca-certificates && update-ca-certificates
 
-RUN apk add --no-cache py3-gevent
-RUN apk add --no-cache libpq
-RUN apk add --no-cache mariadb-connector-c-dev
+# Copy the single source file to the app directory
+WORKDIR /go/src/app
+COPY . .
 
-ADD requirements.txt requirements.txt
+# Install depenancies
+RUN go get -d
 
-RUN apk add --no-cache --virtual .build-deps git build-base libffi-dev libmemcached-dev zlib-dev postgresql-dev mariadb-dev && \
-    pip --no-cache install -r requirements.txt && \
-    apk del .build-deps
+# Build the app
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" .
 
-ENV SQLALCHEMY_DATABASE_URI=postgresql://postgres:password@database/gri \
-    SQLALCHEMY_ECHO=0 \ 
-    DRAMATIQ_BROKER=redis://queue:6379 \
-    HOURS_KEEP_DEPLOYMENTS=1
+# Switch to a small base image
+FROM scratch
 
-CMD gunicorn \
-  --bind 0.0.0.0:443 \
-  --certfile /etc/webhook/certs/server.crt --keyfile /etc/webhook/certs/server.key \
-  run:app
+ENV RANCHER_URL=https://rancher.company.com
+ENV GITLAB_URL=https://gitlab.company.com
+# Copy the binary over from the deploy container
+COPY --from=0 /go/src/app/gitlab-rancher-integration /usr/bin/gitlab-rancher-integration
 
-ADD *.py ./
+# Get the TLS CA certificates from the build container, they're not provided by busybox.
+
+COPY --from=0 /etc/ssl/certs /etc/ssl/certs
+
+ENTRYPOINT ["/usr/bin/gitlab-rancher-integration"]
