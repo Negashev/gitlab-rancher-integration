@@ -3,6 +3,7 @@ module negash.ru/gitlab-rancher-integration
 go 1.18
 
 require (
+	github.com/drexedam/gravatar v0.0.0-20210327211422-e94eea8c338e
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/xanzy/go-gitlab v0.68.2
 )

@@ -10,6 +10,7 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/xanzy/go-gitlab"
+	"github.com/drexedam/gravatar"
 )
 
 ///////////////// MAIN
@@ -258,7 +259,11 @@ func convertGitlabGroupToAccount(gitlabGroup *gitlab.Group) *Account {
 func convertGitlabGroupToTeam(gitlabGroup *gitlab.Group) *Team {
 	org := make(map[string]interface{})
 	org["login"] = gitlabGroup.Path
-	org["avatar_url"] = gitlabGroup.AvatarURL
+	if gitlabGroup.AvatarURL == "" {
+		org["avatar_url"] = gravatar.New(gitlabGroup.Path).ForceDefault(true).AvatarURL()
+	} else {
+		org["avatar_url"] = gitlabGroup.AvatarURL
+	}
 
 	return &Team{
 		ID:           gitlabGroup.ID,
