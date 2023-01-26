@@ -8,12 +8,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/drexedam/gravatar"
 	"github.com/julienschmidt/httprouter"
 	"github.com/xanzy/go-gitlab"
-	"github.com/drexedam/gravatar"
 )
 
-///////////////// MAIN
+// /////////////// MAIN
 func main() {
 	router := httprouter.New()
 	router.GET("/", home)
@@ -30,7 +30,7 @@ func main() {
 	}
 }
 
-///////////////// API
+// /////////////// API
 func home(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	fmt.Fprintf(w, "ok\n")
 }
@@ -215,7 +215,7 @@ type Account struct {
 	Type string `json:"type,omitempty"`
 }
 
-//Team defines properties a team on github has
+// Team defines properties a team on github has
 type Team struct {
 	ID           int                    `json:"id,omitempty"`
 	Organization map[string]interface{} `json:"organization,omitempty"`
@@ -264,6 +264,8 @@ func convertGitlabGroupToTeam(gitlabGroup *gitlab.Group) *Team {
 	} else {
 		org["avatar_url"] = gitlabGroup.AvatarURL
 	}
+	fmt.Println(gitlabGroup.AvatarURL)
+	fmt.Println(org)
 
 	return &Team{
 		ID:           gitlabGroup.ID,
