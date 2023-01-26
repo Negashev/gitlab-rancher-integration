@@ -260,11 +260,10 @@ func convertGitlabGroupToTeam(gitlabGroup *gitlab.Group) *Team {
 	org := make(map[string]interface{})
 	org["login"] = gitlabGroup.Path
 	if gitlabGroup.AvatarURL == "" {
-		org["avatar_url"] = gravatar.New(gitlabGroup.Path).ForceDefault(true).AvatarURL()
+		org["avatar_url"] = gravatar.New(gitlabGroup.Path).Default(gravatar.Retro).AvatarURL()
 	} else {
 		org["avatar_url"] = gitlabGroup.AvatarURL
 	}
-	fmt.Println(gitlabGroup.AvatarURL)
 	fmt.Println(org)
 
 	return &Team{
