@@ -14,6 +14,13 @@ import (
 	"github.com/urfave/negroni"
 )
 
+func getEnv(key, fallback string) string {
+    if value, ok := os.LookupEnv(key); ok {
+        return value
+    }
+    return fallback
+}
+
 // /////////////// MAIN
 func main() {
 	router := httprouter.New()
@@ -41,7 +48,7 @@ func home(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 func oauthAuthorize(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	v := req.URL.Query()
 	v.Add("response_type", "code")
-	v.Add("scope", "read_api")
+	v.Add("scope",getEnv("GITLAB_SCOPE", "read_api"))
 	target := os.Getenv("GITLAB_URL") + "/oauth/authorize?" + v.Encode()
 	http.Redirect(w, req, target, http.StatusTemporaryRedirect)
 }
