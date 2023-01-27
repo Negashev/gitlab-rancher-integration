@@ -11,6 +11,7 @@ import (
 	"github.com/drexedam/gravatar"
 	"github.com/julienschmidt/httprouter"
 	"github.com/xanzy/go-gitlab"
+	"github.com/urfave/negroni"
 )
 
 // /////////////// MAIN
@@ -23,9 +24,11 @@ func main() {
 	router.GET("/api/v3/user/:id", apiV3UserId)
 	router.GET("/api/v3/teams/:id", apiV3TeamsId)
 	router.GET("/api/v3/search/users", apiV3SearchUsers)
-
+	n := negroni.Classic() // Includes some default middlewares
+	n.UseHandler(router)
+  
 	fmt.Println("Listening to 0.0.0.0:8888")
-	if err := http.ListenAndServe("0.0.0.0:8888", router); err != nil {
+	if err := http.ListenAndServe("0.0.0.0:8888", n); err != nil {
 		panic(err)
 	}
 }
