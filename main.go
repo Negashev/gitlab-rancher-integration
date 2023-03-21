@@ -166,6 +166,7 @@ func apiV3SearchUsers(w http.ResponseWriter, req *http.Request, ps httprouter.Pa
 	query := req.URL.Query().Get("q")
 	gitlabClient := createGitlabClient(req)
 
+	fmt.Println(query)
 	searchResult := &searchResult{
 		Items: make([]*Account, 0),
 	}
@@ -274,7 +275,6 @@ func convertGitlabGroupToTeam(gitlabGroup *gitlab.Group) *Team {
 	} else {
 		org["avatar_url"] = gitlabGroup.AvatarURL
 	}
-	fmt.Println(org)
 
 	return &Team{
 		ID:           gitlabGroup.ID,
