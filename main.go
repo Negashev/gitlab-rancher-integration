@@ -102,7 +102,7 @@ func getProjectIdForGroup(w http.ResponseWriter, req *http.Request, ps httproute
 	if rancherProjectId == "" {
 		rancherProjectId = gjson.Get(stringResBody, "data.#(spec.displayName=='Default').id").String()
 	}
-	fmt.Fprintf(w, rancherProjectId)
+	fmt.Fprintf(w, strings.Replace(rancherProjectId, "/", ":", 1))
 }
 
 func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
