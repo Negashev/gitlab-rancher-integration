@@ -13,8 +13,6 @@ image:
 env:
   GITLAB_URL: https://gitlab.company.com
   RANCHER_URL: https://rancher.company.com
-  GITLAB_API_TOKEN: "" # for search
-
 
 imagePullSecrets: []
 nameOverride: ""

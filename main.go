@@ -237,7 +237,7 @@ func createGitlabClient(req *http.Request) *gitlab.Client {
 	authorizationHeader := req.Header.Get("Authorization")
 	t := strings.Split(authorizationHeader, " ")
 	token := t[1]
-	gitlabClient, err := gitlab.NewOAuthClient(getEnv("GITLAB_API_TOKEN", token), gitlab.WithBaseURL(os.Getenv("GITLAB_URL")+"/api/v4"))
+	gitlabClient, err := gitlab.NewOAuthClient(token, gitlab.WithBaseURL(os.Getenv("GITLAB_URL")+"/api/v4"))
 	if err != nil {
 		panic(err)
 	}
@@ -245,11 +245,17 @@ func createGitlabClient(req *http.Request) *gitlab.Client {
 }
 
 func convertGitlabUserToAccount(gitlabUser *gitlab.User) *Account {
+	AvatarURL := ""
+	if gitlabUser.AvatarURL == "" {
+		AvatarURL = gravatar.New(gitlabUser.Username).Default(gravatar.Retro).AvatarURL()
+	} else {
+		AvatarURL = gitlabUser.AvatarURL
+	}
 	return &Account{
 		ID:        gitlabUser.ID,
 		Login:     gitlabUser.Username,
 		Name:      gitlabUser.Name,
-		AvatarURL: gitlabUser.AvatarURL,
+		AvatarURL: AvatarURL,
 		HTMLURL:   "",
 		Type:      "user",
 	}
