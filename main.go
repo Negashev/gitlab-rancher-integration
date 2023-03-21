@@ -107,7 +107,6 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(response.StatusCode)
 	defer response.Body.Close()
 
 	fmt.Fprintf(w, "ok\n")
