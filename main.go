@@ -256,11 +256,17 @@ func convertGitlabUserToAccount(gitlabUser *gitlab.User) *Account {
 }
 
 func convertGitlabGroupToAccount(gitlabGroup *gitlab.Group) *Account {
+	AvatarURL := ""
+	if gitlabGroup.AvatarURL == "" {
+		AvatarURL = gravatar.New(gitlabGroup.FullPath).Default(gravatar.Retro).AvatarURL()
+	} else {
+		AvatarURL = gitlabGroup.AvatarURL
+	}
 	return &Account{
 		ID:        gitlabGroup.ID,
 		Login:     gitlabGroup.Path,
 		Name:      gitlabGroup.FullPath,
-		AvatarURL: gitlabGroup.AvatarURL,
+		AvatarURL: AvatarURL,
 		HTMLURL:   "",
 		Type:      "team",
 	}
