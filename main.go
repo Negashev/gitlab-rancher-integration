@@ -190,13 +190,12 @@ func apiV3SearchUsers(w http.ResponseWriter, req *http.Request, ps httprouter.Pa
 		if err != nil {
 			panic(err)
 		}
-	
-		fmt.Println(gitlabGroups)
 		for _, gitlabGroup := range gitlabGroups {
 			githubOrg := convertGitlabGroupToAccount(gitlabGroup)
 			searchResult.Items = append(searchResult.Items, githubOrg)
 		}
 	}
+	fmt.Println(searchResult.Items)
 
 	if shouldSearchUsers {
 		gitlabUsers, _, err := gitlabClient.Users.ListUsers(&gitlab.ListUsersOptions{
@@ -210,8 +209,10 @@ func apiV3SearchUsers(w http.ResponseWriter, req *http.Request, ps httprouter.Pa
 			searchResult.Items = append(searchResult.Items, githubAccount)
 		}
 	}
+	fmt.Println(searchResult.Items)
 
 	jsonStr, _ := json.Marshal(searchResult)
+	fmt.Println(jsonStr)
 	w.Write(jsonStr)
 }
 
