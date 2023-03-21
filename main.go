@@ -259,7 +259,7 @@ func convertGitlabGroupToAccount(gitlabGroup *gitlab.Group) *Account {
 	return &Account{
 		ID:        gitlabGroup.ID,
 		Login:     gitlabGroup.Path,
-		Name:      gitlabGroup.Name,
+		Name:      gitlabGroup.FullPath,
 		AvatarURL: gitlabGroup.AvatarURL,
 		HTMLURL:   "",
 		Type:      "team",
@@ -279,7 +279,7 @@ func convertGitlabGroupToTeam(gitlabGroup *gitlab.Group) *Team {
 	return &Team{
 		ID:           gitlabGroup.ID,
 		Organization: org,
-		Name:         gitlabGroup.Name,
+		Name:         gitlabGroup.FullPath,
 		Slug:         gitlabGroup.Path,
 	}
 }
