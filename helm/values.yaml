@@ -13,6 +13,9 @@ image:
 env:
   GITLAB_URL: https://gitlab.company.com
   RANCHER_URL: https://rancher.company.com
+  RANCHER_CLUSTER_ID: c-m-xxxxxxxx
+  CATTLE_ACCESS_KEY: ""
+  CATTLE_SECRET_KEY: ""
 
 imagePullSecrets: []
 nameOverride: ""

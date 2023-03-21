@@ -16,6 +16,10 @@ Thanks for [sandstorm](https://sandstorm.de/de/blog/post/making-rancher-2-and-gi
     env:
       GITLAB_URL=https://gitlab.company.com
       RANCHER_URL=https://rancher.company.com
+      GITLAB_HOOK_TOKEN: "" secret token for gitlab system hook
+      RANCHER_CLUSTER_ID: c-m-xxxxxxxx # cluster id for integration gitlab groups and subgroups
+      CATTLE_ACCESS_KEY: "" # access key for cluster from rancher
+      CATTLE_SECRET_KEY: "" # secret key for cluster from rancher
     ingress:
     annotations:
         cert-manager.io/issuer: rancher
@@ -42,7 +46,7 @@ Thanks for [sandstorm](https://sandstorm.de/de/blog/post/making-rancher-2-and-gi
     - select Github enterprise: https://gitlab-rancher-integration.company.com
     - paste Client ID and Client Secret from step 2
 ```
-
+4. Go to giltab system hooks and create hook to `gitlab-rancher-integration.company.com/create-rancher-project-for-gitlab-group`
 
 ## troubleshooting
 

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -10,8 +12,8 @@ import (
 
 	"github.com/drexedam/gravatar"
 	"github.com/julienschmidt/httprouter"
-	"github.com/xanzy/go-gitlab"
 	"github.com/urfave/negroni"
+	"github.com/xanzy/go-gitlab"
 )
 
 func getEnv(key, fallback string) string {
@@ -31,6 +33,7 @@ func main() {
 	router.GET("/api/v3/user/:id", apiV3UserId)
 	router.GET("/api/v3/teams/:id", apiV3TeamsId)
 	router.GET("/api/v3/search/users", apiV3SearchUsers)
+	router.POST("/create-rancher-project-for-gitlab-group", createRancherProjectForGitlabGroup)
 	n := negroni.Classic() // Includes some default middlewares
 	n.UseHandler(router)
   
@@ -42,6 +45,63 @@ func main() {
 
 // /////////////// API
 func home(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	fmt.Fprintf(w, "ok\n")
+}
+
+type CreateGroupEvent struct {
+	createdAt string `json:"created_at"`
+	updatedAt string `json:"updated_at"`
+	eventName string `json:"event_name"`
+	name string `json:"name"`
+	path string `json:"path"`
+	fullPath string `json:"full_path"`
+	groupId int `json:"group_id"`
+}
+
+type CreateRancherProject struct {
+	Type        string `json:"type"`
+	Name        string `json:"name"`
+	Annotations struct {} `json:"annotations"`
+	Labels struct {Group string `json:"group"`} `json:"labels"`
+	ClusterID                     string `json:"clusterId"`
+	ContainerDefaultResourceLimit struct {} `json:"containerDefaultResourceLimit"`
+	ResourceQuota struct {} `json:"resourceQuota"`
+	NamespaceDefaultResourceQuota struct {} `json:"namespaceDefaultResourceQuota"`
+}
+
+func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	gitlabToken := req.Header.Get("X-Gitlab-Token")
+	if gitlabToken != os.Getenv("GITLAB_HOOK_TOKEN") {
+		fmt.Fprintf(w, "ok\n")
+		return
+	}
+	// load json
+	reqBody, _ := ioutil.ReadAll(req.Body)
+	var createEvent CreateGroupEvent 
+	json.Unmarshal(reqBody, &createEvent)
+	if createEvent.eventName != "group_create" {
+		fmt.Fprintf(w, "ok\n")
+		return
+	}
+
+	rb := &CreateRancherProject{Name: createEvent.fullPath, ClusterID: os.Getenv("RANCHER_CLUSTER_ID")}
+	rb.Labels.Group = strconv.Itoa(createEvent.groupId)
+	jsonDataProject, err := json.Marshal(rb)
+	request, err := http.NewRequest("POST", os.Getenv("RANCHER_URL") + "/v3/projects",  bytes.NewBuffer(jsonDataProject))
+	if err != nil {
+		panic(err)
+	}
+
+	request.SetBasicAuth(os.Getenv("CATTLE_ACCESS_KEY"), os.Getenv("CATTLE_SECRET_KEY"))
+	request.Header.Set("Accept", "application/json")
+	request.Header.Set("Content-Type", "application/json")
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		panic(err)
+	}
+	defer response.Body.Close()
+
 	fmt.Fprintf(w, "ok\n")
 }
 
