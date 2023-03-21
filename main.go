@@ -190,6 +190,8 @@ func apiV3SearchUsers(w http.ResponseWriter, req *http.Request, ps httprouter.Pa
 		if err != nil {
 			panic(err)
 		}
+	
+		fmt.Println(gitlabGroups)
 		for _, gitlabGroup := range gitlabGroups {
 			githubOrg := convertGitlabGroupToAccount(gitlabGroup)
 			searchResult.Items = append(searchResult.Items, githubOrg)
