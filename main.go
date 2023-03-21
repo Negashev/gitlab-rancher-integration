@@ -177,8 +177,6 @@ func apiV3SearchUsers(w http.ResponseWriter, req *http.Request, ps httprouter.Pa
 		shouldSearchOrgs = true
 		query = strings.ReplaceAll(query, "type:org", "")
 	}
-	
-	fmt.Println(query)
 
 	if shouldSearchOrgs {
 		allAvailable := true
@@ -195,7 +193,6 @@ func apiV3SearchUsers(w http.ResponseWriter, req *http.Request, ps httprouter.Pa
 			searchResult.Items = append(searchResult.Items, githubOrg)
 		}
 	}
-	fmt.Println(searchResult.Items)
 
 	if shouldSearchUsers {
 		gitlabUsers, _, err := gitlabClient.Users.ListUsers(&gitlab.ListUsersOptions{
@@ -209,10 +206,8 @@ func apiV3SearchUsers(w http.ResponseWriter, req *http.Request, ps httprouter.Pa
 			searchResult.Items = append(searchResult.Items, githubAccount)
 		}
 	}
-	fmt.Println(searchResult.Items)
 
 	jsonStr, _ := json.Marshal(searchResult)
-	fmt.Println(jsonStr)
 	w.Write(jsonStr)
 }
 
@@ -273,9 +268,9 @@ func convertGitlabGroupToAccount(gitlabGroup *gitlab.Group) *Account {
 
 func convertGitlabGroupToTeam(gitlabGroup *gitlab.Group) *Team {
 	org := make(map[string]interface{})
-	org["login"] = gitlabGroup.Path
+	org["login"] = gitlabGroup.FullPath
 	if gitlabGroup.AvatarURL == "" {
-		org["avatar_url"] = gravatar.New(gitlabGroup.Path).Default(gravatar.Retro).AvatarURL()
+		org["avatar_url"] = gravatar.New(gitlabGroup.FullPath).Default(gravatar.Retro).AvatarURL()
 	} else {
 		org["avatar_url"] = gitlabGroup.AvatarURL
 	}
