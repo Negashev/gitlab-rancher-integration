@@ -166,7 +166,6 @@ func apiV3SearchUsers(w http.ResponseWriter, req *http.Request, ps httprouter.Pa
 	query := req.URL.Query().Get("q")
 	gitlabClient := createGitlabClient(req)
 
-	fmt.Println(query)
 	searchResult := &searchResult{
 		Items: make([]*Account, 0),
 	}
@@ -178,6 +177,8 @@ func apiV3SearchUsers(w http.ResponseWriter, req *http.Request, ps httprouter.Pa
 		shouldSearchOrgs = true
 		query = strings.ReplaceAll(query, "type:org", "")
 	}
+	
+	fmt.Println(query)
 
 	if shouldSearchOrgs {
 		allAvailable := true
