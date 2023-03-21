@@ -77,9 +77,10 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 	}
 	fmt.Println(gitlabToken)
 	// load json
-	reqBody, _ := ioutil.ReadAll(req.Body)
-	var createEvent CreateGroupEvent 
-	json.Unmarshal(reqBody, createEvent)
+	var createEvent CreateGroupEvent
+	decoder := json.NewDecoder(req.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&createEvent)
 	fmt.Println(createEvent.eventName)
 	if createEvent.eventName != "group_create" {
 		fmt.Fprintf(w, "ok\n")
