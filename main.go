@@ -237,7 +237,7 @@ func createGitlabClient(req *http.Request) *gitlab.Client {
 	authorizationHeader := req.Header.Get("Authorization")
 	t := strings.Split(authorizationHeader, " ")
 	token := t[1]
-	gitlabClient, err := gitlab.NewOAuthClient(token, gitlab.WithBaseURL(os.Getenv("GITLAB_URL")+"/api/v4"))
+	gitlabClient, err := gitlab.NewOAuthClient(getEnv("GITLAB_API_TOKEN", token), gitlab.WithBaseURL(os.Getenv("GITLAB_URL")+"/api/v4"))
 	if err != nil {
 		panic(err)
 	}
