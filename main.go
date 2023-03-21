@@ -75,6 +75,7 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 		fmt.Fprintf(w, "ok\n")
 		return
 	}
+	print(gitlabToken)
 	// load json
 	reqBody, _ := ioutil.ReadAll(req.Body)
 	var createEvent CreateGroupEvent 
@@ -83,6 +84,7 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 		fmt.Fprintf(w, "ok\n")
 		return
 	}
+	print(createEvent)
 
 	rb := &CreateRancherProject{Name: createEvent.fullPath, ClusterID: os.Getenv("RANCHER_CLUSTER_ID")}
 	rb.Labels.Group = strconv.Itoa(createEvent.groupId)
@@ -91,6 +93,7 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 	if err != nil {
 		panic(err)
 	}
+	print(jsonDataProject)
 
 	request.SetBasicAuth(os.Getenv("CATTLE_ACCESS_KEY"), os.Getenv("CATTLE_SECRET_KEY"))
 	request.Header.Set("Accept", "application/json")
