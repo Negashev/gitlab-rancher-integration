@@ -48,13 +48,13 @@ func home(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 }
 
 type CreateGroupEvent struct {
-	createdAt string `json:"created_at"`
-	updatedAt string `json:"updated_at"`
-	eventName string `json:"event_name"`
-	name string `json:"name"`
-	path string `json:"path"`
-	fullPath string `json:"full_path"`
-	groupId int `json:"group_id"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+	EventName string `json:"event_name"`
+	Name string `json:"name"`
+	Path string `json:"path"`
+	FullPath string `json:"full_path"`
+	GroupId int `json:"group_id"`
 }
 
 type CreateRancherProject struct {
@@ -76,19 +76,24 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 	}
 	fmt.Println(gitlabToken)
 	// load json
-	var createEvent CreateGroupEvent
-	decoder := json.NewDecoder(req.Body)
-	decoder.DisallowUnknownFields()
-	err := decoder.Decode(&createEvent)
-	fmt.Println(createEvent.eventName)
-	if createEvent.eventName != "group_create" {
+	createEvent := CreateGroupEvent{} //initialize empty user
+
+	//Parse json request body and use it to set fields on user
+	//Note that user is passed as a pointer variable so that it's fields can be modified
+	err := json.NewDecoder(req.Body).Decode(&createEvent)
+	if err != nil{
+		panic(err)
+	}
+
+	fmt.Println(createEvent.EventName)
+	if createEvent.EventName != "group_create" {
 		fmt.Fprintf(w, "ok\n")
 		return
 	}
 	fmt.Println(createEvent)
 
-	rb := &CreateRancherProject{Name: createEvent.fullPath, ClusterID: os.Getenv("RANCHER_CLUSTER_ID")}
-	rb.Labels.Group = strconv.Itoa(createEvent.groupId)
+	rb := &CreateRancherProject{Name: createEvent.FullPath, ClusterID: os.Getenv("RANCHER_CLUSTER_ID")}
+	rb.Labels.Group = strconv.Itoa(createEvent.GroupId)
 	jsonDataProject, err := json.Marshal(rb)
 	request, err := http.NewRequest("POST", os.Getenv("RANCHER_URL") + "/v3/projects",  bytes.NewBuffer(jsonDataProject))
 	if err != nil {
