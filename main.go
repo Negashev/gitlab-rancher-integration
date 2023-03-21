@@ -74,7 +74,6 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 		fmt.Fprintf(w, "ok\n")
 		return
 	}
-	fmt.Println(gitlabToken)
 	// load json
 	createEvent := CreateGroupEvent{} //initialize empty user
 
@@ -85,12 +84,10 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 		panic(err)
 	}
 
-	fmt.Println(createEvent.EventName)
 	if createEvent.EventName != "group_create" {
 		fmt.Fprintf(w, "ok\n")
 		return
 	}
-	fmt.Println(createEvent)
 
 	rb := &CreateRancherProject{Name: createEvent.FullPath, ClusterID: os.Getenv("RANCHER_CLUSTER_ID")}
 	rb.Labels.Group = strconv.Itoa(createEvent.GroupId)
@@ -109,7 +106,8 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 	if err != nil {
 		panic(err)
 	}
-	defer response.Body.Close()
+	defer response.Body.Close()	
+	fmt.Println(response.Body)
 
 	fmt.Fprintf(w, "ok\n")
 }
