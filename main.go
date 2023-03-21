@@ -35,6 +35,7 @@ func main() {
 	router.GET("/api/v3/teams/:id", apiV3TeamsId)
 	router.GET("/api/v3/search/users", apiV3SearchUsers)
 	router.POST("/create-rancher-project-for-gitlab-group", createRancherProjectForGitlabGroup)
+	router.GET("/get-project-for-group", getProjectIdForGroup)
 	n := negroni.Classic() // Includes some default middlewares
 	n.UseHandler(router)
   
@@ -49,16 +50,6 @@ func home(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	fmt.Fprintf(w, "ok\n")
 }
 
-// type CreateGroupEvent struct {
-// 	CreatedAt string `json:"created_at"`
-// 	UpdatedAt string `json:"updated_at"`
-// 	EventName string `json:"event_name"`
-// 	Name string `json:"name"`
-// 	Path string `json:"path"`
-// 	FullPath string `json:"full_path"`
-// 	GroupId int `json:"group_id"`
-// }
-
 type CreateRancherProject struct {
 	Type        string `json:"type"`
 	Name        string `json:"name"`
@@ -70,96 +61,48 @@ type CreateRancherProject struct {
 	NamespaceDefaultResourceQuota struct {} `json:"namespaceDefaultResourceQuota"`
 }
 
-// type Project struct {
-// 	Actions struct {
-// 		EnableMonitoring             string `json:"enableMonitoring"`
-// 		ExportYaml                   string `json:"exportYaml"`
-// 		Setpodsecuritypolicytemplate string `json:"setpodsecuritypolicytemplate"`
-// 	} `json:"actions"`
-// 	Annotations struct {
-// 		AuthzManagementCattleIoCreatorRoleBindings string `json:"authz.management.cattle.io/creator-role-bindings"`
-// 	} `json:"annotations"`
-// 	BaseType                      string `json:"baseType"`
-// 	ClusterID                     string `json:"clusterId"`
-// 	ContainerDefaultResourceLimit struct {
-// 		Type string `json:"type"`
-// 	} `json:"containerDefaultResourceLimit"`
-// 	Created                 time.Time `json:"created"`
-// 	CreatedTS               int64     `json:"createdTS"`
-// 	CreatorID               string    `json:"creatorId"`
-// 	EnableProjectMonitoring bool      `json:"enableProjectMonitoring"`
-// 	ID                      string    `json:"id"`
-// 	Labels                  struct {
-// 		CattleIoCreator string `json:"cattle.io/creator"`
-// 	} `json:"labels"`
-// 	Links struct {
-// 		Alertmanagers                            string `json:"alertmanagers"`
-// 		AppRevisions                             string `json:"appRevisions"`
-// 		Apps                                     string `json:"apps"`
-// 		BasicAuths                               string `json:"basicAuths"`
-// 		Certificates                             string `json:"certificates"`
-// 		ConfigMaps                               string `json:"configMaps"`
-// 		CronJobs                                 string `json:"cronJobs"`
-// 		DaemonSets                               string `json:"daemonSets"`
-// 		Deployments                              string `json:"deployments"`
-// 		DNSRecords                               string `json:"dnsRecords"`
-// 		DockerCredentials                        string `json:"dockerCredentials"`
-// 		HorizontalPodAutoscalers                 string `json:"horizontalPodAutoscalers"`
-// 		Ingresses                                string `json:"ingresses"`
-// 		Jobs                                     string `json:"jobs"`
-// 		NamespacedBasicAuths                     string `json:"namespacedBasicAuths"`
-// 		NamespacedCertificates                   string `json:"namespacedCertificates"`
-// 		NamespacedDockerCredentials              string `json:"namespacedDockerCredentials"`
-// 		NamespacedSecrets                        string `json:"namespacedSecrets"`
-// 		NamespacedServiceAccountTokens           string `json:"namespacedServiceAccountTokens"`
-// 		NamespacedSSHAuths                       string `json:"namespacedSshAuths"`
-// 		PersistentVolumeClaims                   string `json:"persistentVolumeClaims"`
-// 		PodSecurityPolicyTemplateProjectBindings string `json:"podSecurityPolicyTemplateProjectBindings"`
-// 		Pods                                     string `json:"pods"`
-// 		ProjectAlertGroups                       string `json:"projectAlertGroups"`
-// 		ProjectAlertRules                        string `json:"projectAlertRules"`
-// 		ProjectAlerts                            string `json:"projectAlerts"`
-// 		ProjectCatalogs                          string `json:"projectCatalogs"`
-// 		ProjectMonitorGraphs                     string `json:"projectMonitorGraphs"`
-// 		ProjectNetworkPolicies                   string `json:"projectNetworkPolicies"`
-// 		ProjectRoleTemplateBindings              string `json:"projectRoleTemplateBindings"`
-// 		PrometheusRules                          string `json:"prometheusRules"`
-// 		Prometheuses                             string `json:"prometheuses"`
-// 		Remove                                   string `json:"remove"`
-// 		ReplicaSets                              string `json:"replicaSets"`
-// 		ReplicationControllers                   string `json:"replicationControllers"`
-// 		Secrets                                  string `json:"secrets"`
-// 		Self                                     string `json:"self"`
-// 		ServiceAccountTokens                     string `json:"serviceAccountTokens"`
-// 		ServiceMonitors                          string `json:"serviceMonitors"`
-// 		Services                                 string `json:"services"`
-// 		SSHAuths                                 string `json:"sshAuths"`
-// 		StatefulSets                             string `json:"statefulSets"`
-// 		Subscribe                                string `json:"subscribe"`
-// 		Templates                                string `json:"templates"`
-// 		Update                                   string `json:"update"`
-// 		Workloads                                string `json:"workloads"`
-// 	} `json:"links"`
-// 	Name                          string `json:"name"`
-// 	NamespaceDefaultResourceQuota struct {
-// 		Type string `json:"type"`
-// 	} `json:"namespaceDefaultResourceQuota"`
-// 	NamespaceID   any `json:"namespaceId"`
-// 	ResourceQuota struct {
-// 		Type string `json:"type"`
-// 	} `json:"resourceQuota"`
-// 	State                string `json:"state"`
-// 	Transitioning        string `json:"transitioning"`
-// 	TransitioningMessage string `json:"transitioningMessage"`
-// 	Type                 string `json:"type"`
-// 	UUID                 string `json:"uuid"`
-// }
-
 type AddGroupToProject struct {
 	Type             string `json:"type"`
 	RoleTemplateID   string `json:"roleTemplateId"`
 	GroupPrincipalID string `json:"groupPrincipalId"`
 	ProjectID        string `json:"projectId"`
+}
+
+func getProjectIdForGroup(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	gitlabToken := req.Header.Get("X-Gitlab-Token")
+	if gitlabToken != os.Getenv("GITLAB_HOOK_TOKEN") {
+		fmt.Fprintf(w, "")
+		return
+	}
+	groupId := req.Header.Get("Group-Id")
+
+	request, err := http.NewRequest("GET", os.Getenv("RANCHER_URL") + "/v1/management.cattle.io.project/" + os.Getenv("RANCHER_CLUSTER_ID"), nil)
+	if err != nil {
+		panic(err)
+	}
+
+	request.SetBasicAuth(os.Getenv("CATTLE_ACCESS_KEY"), os.Getenv("CATTLE_SECRET_KEY"))
+	request.Header.Set("Accept", "application/json")
+	request.Header.Set("Content-Type", "application/json")
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		panic(err)
+	}
+	defer response.Body.Close()
+	
+	// new request for add group to rancher project
+	resBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		panic(err)
+	}
+	stringResBody := string(resBody)
+	rancherProjectId := gjson.Get(stringResBody, "data.#(metadata.labels.group==" + groupId + ").id").String()
+	// set default project if group not found
+	if rancherProjectId == "" {
+		rancherProjectId = gjson.Get(stringResBody, "data.#(spec.displayName=='Default').id").String()
+	}
+	fmt.Fprintf(w, rancherProjectId)
 }
 
 func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
@@ -169,12 +112,6 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 		return
 	}
 	// load json
-	// createEvent := CreateGroupEvent{}
-
-	// err := json.NewDecoder(req.Body).Decode(&createEvent)
-	// if err != nil{
-	// 	panic(err)
-	// }
 	reqBody, err := io.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
@@ -182,7 +119,6 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 	stringReqBody := string(reqBody) 
 
 	eventName := gjson.Get(stringReqBody, "event_name")
-	println(eventName.String())
 
 	if eventName.String() != "group_create" {
 		fmt.Fprintf(w, "ok\n")
@@ -194,6 +130,9 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 	rb.ClusterID = os.Getenv("RANCHER_CLUSTER_ID")
 	rb.Labels.Group = gjson.Get(stringReqBody, "group_id").String()
 	jsonDataProject, err := json.Marshal(rb)
+	if err != nil {
+		panic(err)
+	}
 	request, err := http.NewRequest("POST", os.Getenv("RANCHER_URL") + "/v3/projects",  bytes.NewBuffer(jsonDataProject))
 	if err != nil {
 		panic(err)
@@ -209,13 +148,6 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 	}
 	defer response.Body.Close()
 	
-	// load json from rancher
-	// project := Project{}
-
-	// err = json.NewDecoder(response.Body).Decode(&project)
-	// if err != nil{
-	// 	panic(err)
-	// }
 	// new request for add group to rancher project
 	resBody, err := io.ReadAll(response.Body)
 	if err != nil {
@@ -228,6 +160,9 @@ func createRancherProjectForGitlabGroup(w http.ResponseWriter, req *http.Request
 	agp.RoleTemplateID = "read-only"
 	agp.Type = "projectroletemplatebinding"
 	jsonDataProject, err = json.Marshal(agp)
+	if err != nil {
+		panic(err)
+	}
 	request, err = http.NewRequest("POST", os.Getenv("RANCHER_URL") + "/v3/projectroletemplatebindings",  bytes.NewBuffer(jsonDataProject))
 	if err != nil {
 		panic(err)
