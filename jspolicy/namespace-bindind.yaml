@@ -14,6 +14,22 @@ spec:
   
     const regex = /[a-zA-Z0-9-]+-([0-9]{1,})-[a-zA-Z0-9-]+$/g;
     const matches = request.namespace.matchAll(regex);
+    const matches2 = null
+
+    // check project id for review like app-194-review-abc-19247-xxxxx    
+    const regex2 = /[a-zA-Z0-9-]+-([0-9]{1,})-[review]+-[a-zA-Z0-9-]+$/g;
+    for (const match of matches) {
+      const words = request.namespace.split(match[1]);
+      // split like that ["app-194-review-abc-", "-xxxxx"] 
+      if (words[0].includes("-review-") && !words[1].includes("-review-")) {
+        matches2 = request.namespace.matchAll(regex2);
+        for (const match2 of matches2) {
+          if (match2[1]) {
+            matches = matches2;
+          }
+        }
+      }
+    }
         
     for (const match of matches) {
       
