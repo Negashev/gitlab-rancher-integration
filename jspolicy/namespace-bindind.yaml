@@ -4,8 +4,8 @@ metadata:
   name: "namespace-to-project.binding.policy"
 spec:
   operations: ["CREATE"]
-  resources: ["namespace"]
-  javascript: |  
+  resources: ["namespaces"]
+  javascript: |
     const GITLAB_HOOK_TOKEN = env("GITLAB_HOOK_TOKEN");
     const GITLAB_RANCHER_INTEGRATION = env("GITLAB_RANCHER_INTEGRATION");
     const GITLAB_HOST = env("GITLAB_HOST");
