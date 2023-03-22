@@ -1,0 +1,43 @@
+apiVersion: policy.jspolicy.com/v1beta1
+kind: JsPolicy
+metadata:
+  name: "namespace-to-project.binding.policy"
+spec:
+  operations: ["CREATE"]
+  resources: ["namespace"]
+  dependencies:
+    @gitbeaker/node
+  javascript: |
+    import { Gitlab } from '@gitbeaker/node';
+  
+    const GITLAB_HOOK_TOKEN = env("GITLAB_HOOK_TOKEN");
+    const GITLAB_RANCHER_INTEGRATION = env("GITLAB_RANCHER_INTEGRATION");
+    const GITLAB_HOST = env("GITLAB_HOST");
+    const GITLAB_TOKEN = env("GITLAB_TOKEN");
+  
+
+    const api = new Gitlab({
+      host: GITLAB_HOST,
+      token: GITLAB_TOKEN,
+    });
+    
+    request.namespace
+    const regex = /[a-zA-Z0-9-]+-([0-9]{1,})-[a-zA-Z0-9-]+$/g;
+    const matches = request.namespace.matchAll(regex);
+        
+    for (const match of matches) {
+      console.log(match[1]);
+      // Or using Promise-Then notation
+      api.Projects.get(match[1])
+      // use fetchSync to make requests to backend servers
+      const res = fetchSync(GITLAB_RANCHER_INTEGRATION + "/get-project-for-group", {
+        method: "GET",
+        headers: {
+          "X-GItlab-Token": GITLAB_HOOK_TOKEN,
+          "Group-Id": groupid
+        },
+      });
+      if (res.ok) {
+        print("projectid: " + res.text);
+      }
+    }

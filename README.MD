@@ -47,6 +47,14 @@ Thanks for [sandstorm](https://sandstorm.de/de/blog/post/making-rancher-2-and-gi
     - paste Client ID and Client Secret from step 2
 ```
 4. Go to giltab system hooks and create hook to `gitlab-rancher-integration.company.com/create-rancher-project-for-gitlab-group`
+5. Install jspolicy from https://charts.loft.sh to k8s from `RANCHER_CLUSTER_ID` with env 
+```
+GITLAB_HOOK_TOKEN - secret token for gitlab system hook
+GITLAB_RANCHER_INTEGRATION - http url gitlab rancher sever auth
+GITLAB_HOST gitab host url
+GITLAB_TOKEN gitlab token (read all groups)
+```
+6. Install crd JsPolicy from ./jspolicy (you can do it with fleet)
 
 ## troubleshooting
 
