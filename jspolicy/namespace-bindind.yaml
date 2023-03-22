@@ -34,7 +34,7 @@ spec:
           },
         });
         if (project.ok) {
-          print("projectid: " + project.text);
+          print("projectid: " + project.text());
           mutate(request.object);
         } else {
           print(project.text)
