@@ -5,6 +5,7 @@ metadata:
 spec:
   operations: ["CREATE"]
   resources: ["namespaces"]
+  type: Mutating
   javascript: |
     const GITLAB_HOOK_TOKEN = env("GITLAB_HOOK_TOKEN");
     const GITLAB_RANCHER_INTEGRATION = env("GITLAB_RANCHER_INTEGRATION");
