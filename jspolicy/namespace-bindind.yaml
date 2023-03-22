@@ -6,7 +6,7 @@ spec:
   operations: ["CREATE"]
   resources: ["namespace"]
   dependencies:
-    @gitbeaker/node
+    "@gitbeaker/node": "^35.8.1"
   javascript: |
     import { Gitlab } from '@gitbeaker/node';
   
