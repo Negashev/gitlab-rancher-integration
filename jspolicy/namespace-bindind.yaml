@@ -16,7 +16,6 @@ spec:
     const matches = request.namespace.matchAll(regex);
         
     for (const match of matches) {
-      print(match[1]);
       
       // get project
       group = fetchSync(GITLAB_HOST + "/api/v4/projects/" + match[1], {
@@ -34,7 +33,8 @@ spec:
           },
         });
         if (project.ok) {
-          print("projectid: " + project.text());
+          print("gitlab group id: " + group.json().namespace.id + " -> " + project.text());
+          request.object.metadata.annotations["field.cattle.io/projectId"] = project.text()
           mutate(request.object);
         } else {
           print(project.text)
