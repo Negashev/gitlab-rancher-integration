@@ -24,7 +24,7 @@ spec:
           "PRIVATE-TOKEN": GITLAB_TOKEN,
         },
       });
-      if (res.ok) {
+      if (group.ok) {
         print("gitlab group id: " + group.json().namespace.id);
         // use fetchSync to make requests to backend servers
         project = fetchSync(GITLAB_RANCHER_INTEGRATION + "/get-project-for-group", {
@@ -33,7 +33,7 @@ spec:
             "Group-Id": group.json().namespace.id
           },
         });
-        if (res.ok) {
+        if (project.ok) {
           print("projectid: " + project.text);
         }
       }
