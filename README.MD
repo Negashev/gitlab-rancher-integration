@@ -7,7 +7,7 @@ This helm repo integrate gitlab auth to rancher and gitlab group/users (AutoDevO
 Thanks for [sandstorm](https://sandstorm.de/de/blog/post/making-rancher-2-and-gitlab-oauth-authentication-work-together.html)
 
 ---
-
+![gri](./gitlab-rancher-integration.png)
 ## installation
 
 1. deploy helm with values
