@@ -13,8 +13,8 @@ spec:
     const GITLAB_TOKEN = env("GITLAB_TOKEN");
   
     const regex = /[a-zA-Z0-9-]+-([0-9]{1,})-[a-zA-Z0-9-]+$/g;
-    const matches = request.namespace.matchAll(regex);
-    const matches2 = null
+    matches = request.namespace.matchAll(regex);
+    matches2 = null
 
     // check project id for review like app-194-review-abc-19247-xxxxx    
     const regex2 = /[a-zA-Z0-9-]+-([0-9]{1,})-[review]+-[a-zA-Z0-9-]+$/g;
