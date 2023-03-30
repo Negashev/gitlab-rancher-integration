@@ -28,6 +28,8 @@ spec:
             matches = request.namespace.matchAll(regex2);
           }
         }
+      } else {
+        matches = request.namespace.matchAll(regex);
       }
     }
         
