@@ -56,8 +56,9 @@ spec:
         });
         if (project.ok) {
           print("gitlab group id: " + group.json().namespace.id + " -> " + project.text());
-          if (!request.object.metadata?.annotations):
+          if (!request.object.metadata?.annotations) {
             request.object.metadata['annotations'] = {};
+          }  
           request.object.metadata.annotations["field.cattle.io/projectId"] = project.text();
           mutate(request.object);
         } else {
