@@ -32,9 +32,9 @@ spec:
     }
     
     if (useNextRegexp) {
-        matches = namespace.matchAll(regex2);
+        matches = request.namespace.matchAll(regex2);
     } else {
-        matches = namespace.matchAll(regex);
+        matches = request.namespace.matchAll(regex);
     }
         
     for (const match of matches) {
