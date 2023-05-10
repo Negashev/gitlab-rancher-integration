@@ -50,7 +50,7 @@ spec:
         // use fetchSync to make requests to backend servers
         project = fetchSync(GITLAB_RANCHER_INTEGRATION + "/get-project-for-group", {
           headers: {
-            "X-GItlab-Token": GITLAB_HOOK_TOKEN,
+            "X-Gitlab-Token": GITLAB_HOOK_TOKEN,
             "Group-Id": group.json().namespace.id.toString()
           },
         });
