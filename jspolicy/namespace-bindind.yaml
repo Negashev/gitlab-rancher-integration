@@ -6,12 +6,6 @@ spec:
   operations: ["CREATE"]
   resources: ["namespaces"]
   type: Mutating
-  namespaceSelector:
-    matchExpressions:
-    - key: kubernetes.io/metadata.name
-      operator: NotIn
-      values:
-      - jspolicy
   javascript: |
     const GITLAB_HOOK_TOKEN = env("GITLAB_HOOK_TOKEN");
     const GITLAB_RANCHER_INTEGRATION = env("GITLAB_RANCHER_INTEGRATION");
